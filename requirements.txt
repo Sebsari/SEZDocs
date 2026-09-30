@@ -1,0 +1,15 @@
+streamlit
+pypdf
+pdf2image
+pytesseract
+sentence-transformers
+faiss-cpu
+pandas
+numpy
+reportlab
+arabic-reshaper
+python-bidi
+
+# Desktop app packaging
+pywebview
+pyinstaller
