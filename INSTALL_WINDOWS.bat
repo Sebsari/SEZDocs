@@ -21,7 +21,7 @@ title SEZDocs - نصب خودکار
 
 :: ---------------- تنظیمات: این سه خط رو با اطلاعات ریپوی خودت پر کن ----------------
 set "GITHUB_USER=Sebsari"
-set "GITHUB_REPO=sezdocs"
+set "GITHUB_REPO=SEZDocs"
 set "GITHUB_BRANCH=main"
 :: -----------------------------------------------------------------------------------
 
