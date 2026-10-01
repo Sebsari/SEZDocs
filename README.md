@@ -120,3 +120,10 @@ to it over HTTP — that's a separate, scoped project.
 - **No more "Merge" checkbox:** files already indexed and unchanged (same path, size, modified time) are skipped automatically; changed files are re-processed and replace their old pages. With an index loaded, new files are added to it; use **Clear Index** to start over and **Save Index** to keep a named copy.
 - **Report:** one click exports the current search results as a PDF (query, index, date, file, page, snippet). Persian text is supported using the system font (Tahoma/Arial on Windows).
 - **Truly offline after install:** `INSTALL_WINDOWS.bat` now also pre-downloads the search AI model (~90MB, one time) during setup, so the very first search works without internet too.
+
+## License
+
+Copyright (c) 2026 Mohammad Reza Sebzari
+
+SEZDocs is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License v3.0. See the [LICENSE](LICENSE) file.

@@ -1,3 +1,5 @@
+# SEZDocs - Copyright (c) 2026 Mohammad Reza Sebzari
+# Licensed under the GNU General Public License v3.0 (see LICENSE).
 """
 SEZDocs Desktop Launcher
 ========================
