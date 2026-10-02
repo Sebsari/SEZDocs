@@ -10,6 +10,5 @@ reportlab
 arabic-reshaper
 python-bidi
 
-# Desktop app packaging
+# Desktop window
 pywebview
-pyinstaller

@@ -33,6 +33,26 @@ def get_base_dir() -> str:
     return os.path.dirname(os.path.abspath(__file__))
 
 
+def get_icon_path() -> str | None:
+    """static/sezdocs.ico next to the app, if it's there."""
+    path = os.path.join(get_base_dir(), "static", "sezdocs.ico")
+    return path if os.path.isfile(path) else None
+
+
+def set_taskbar_identity():
+    """Give the window its own Windows taskbar identity, so the taskbar shows
+    the SEZDocs icon instead of grouping it under the generic Python icon."""
+    if os.name != "nt":
+        return
+    try:
+        import ctypes
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
+            "SEZTools.SEZDocs"
+        )
+    except Exception:
+        pass
+
+
 def find_free_port(start: int = 8501) -> int:
     port = start
     while port < start + 50:
@@ -90,6 +110,7 @@ def main():
     except Exception:
         pass
 
+    set_taskbar_identity()
     webview.create_window(
         "SEZDocs - Offline Document Search",
         f"http://127.0.0.1:{port}",
@@ -97,7 +118,11 @@ def main():
         height=860,
         min_size=(900, 600),
     )
-    webview.start()
+    icon = get_icon_path()
+    try:
+        webview.start(icon=icon) if icon else webview.start()
+    except TypeError:  # older pywebview without the icon argument
+        webview.start()
 
     if proc.poll() is None:
         proc.terminate()

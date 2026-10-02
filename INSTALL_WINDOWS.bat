@@ -207,13 +207,15 @@ if "%errorlevel%"=="0" (
 :: ------------------------------------------------------------
 :: 8) Create a desktop shortcut for future launches ^(no need to re-run this installer^)
 :: ------------------------------------------------------------
+set "ICON_PATH=%APP_DIR%\static\sezdocs.ico"
+if not exist "%ICON_PATH%" set "ICON_PATH=%APP_DIR%\venv\Scripts\python.exe"
 set "SHORTCUT_PS1=%TEMP%\sezdocs_make_shortcut.ps1"
 > "%SHORTCUT_PS1%" echo $shell = New-Object -COM WScript.Shell
 >> "%SHORTCUT_PS1%" echo $lnk = $shell.CreateShortcut("$env:USERPROFILE\Desktop\SEZDocs.lnk")
 >> "%SHORTCUT_PS1%" echo $lnk.TargetPath = "%APP_DIR%\venv\Scripts\python.exe"
 >> "%SHORTCUT_PS1%" echo $lnk.Arguments = '"%APP_DIR%\desktop_launcher.py"'
 >> "%SHORTCUT_PS1%" echo $lnk.WorkingDirectory = "%APP_DIR%"
->> "%SHORTCUT_PS1%" echo $lnk.IconLocation = "%APP_DIR%\venv\Scripts\python.exe"
+>> "%SHORTCUT_PS1%" echo $lnk.IconLocation = "%ICON_PATH%"
 >> "%SHORTCUT_PS1%" echo $lnk.Save()
 powershell -NoProfile -ExecutionPolicy Bypass -File "%SHORTCUT_PS1%"
 del "%SHORTCUT_PS1%" >nul 2>nul
