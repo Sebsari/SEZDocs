@@ -191,18 +191,38 @@ if not exist "%APP_DIR%\venv\Scripts\python.exe" (
     echo [...] Creating the Python virtual environment...
     python -m venv venv
 )
-echo [...] Installing required packages ^(this can take a few minutes^)...
-"%APP_DIR%\venv\Scripts\python.exe" -m pip install --upgrade pip -q
-"%APP_DIR%\venv\Scripts\python.exe" -m pip install -r requirements.txt -q
-
-echo [...] Downloading the search AI model ^(one time, about 90 MB - fully offline after this^)...
-"%APP_DIR%\venv\Scripts\python.exe" -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
-if "%errorlevel%"=="0" (
-    echo [OK] Search model is ready - no internet needed from here on.
-) else (
-    echo [Warning] Downloading the search model failed ^(check your internet connection^).
-    echo The app will still start, but the first search will try to download it again.
+echo [...] Installing required packages. This downloads a few hundred MB and can take
+echo       10+ minutes on a slow connection. It is NOT frozen - please keep this window open.
+"%APP_DIR%\venv\Scripts\python.exe" -m pip install --upgrade pip -q --default-timeout=100 --retries 10
+"%APP_DIR%\venv\Scripts\python.exe" -m pip install -r requirements.txt --default-timeout=100 --retries 10
+if not "%errorlevel%"=="0" (
+    echo.
+    echo [Error] Installing the Python packages failed - usually a network problem.
+    echo Check the internet connection ^(pypi.org and files.pythonhosted.org must be reachable^)
+    echo and run this file again. Already-downloaded packages are reused.
+    echo.
+    pause
+    exit /b 1
 )
+
+set "HF_HUB_DOWNLOAD_TIMEOUT=120"
+set "MODEL_TRIES=0"
+echo [...] Downloading the search AI model ^(one time, about 90 MB - fully offline after this^)...
+echo       If this seems stuck, the connection to huggingface.co is slow - it retries on its own.
+:model_try
+set /a MODEL_TRIES+=1
+"%APP_DIR%\venv\Scripts\python.exe" -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+if "%errorlevel%"=="0" goto model_ok
+if %MODEL_TRIES% LSS 3 (
+    echo [...] Download failed - retrying ^(attempt %MODEL_TRIES% of 3 done^)...
+    goto model_try
+)
+echo [Warning] Downloading the search model failed ^(check the connection to huggingface.co^).
+echo The app will still start, but the first search will try to download it again.
+goto model_done
+:model_ok
+echo [OK] Search model is ready - no internet needed from here on.
+:model_done
 
 :: ------------------------------------------------------------
 :: 8) Create a desktop shortcut for future launches ^(no need to re-run this installer^)
@@ -212,7 +232,7 @@ if not exist "%ICON_PATH%" set "ICON_PATH=%APP_DIR%\venv\Scripts\python.exe"
 set "SHORTCUT_PS1=%TEMP%\sezdocs_make_shortcut.ps1"
 > "%SHORTCUT_PS1%" echo $shell = New-Object -COM WScript.Shell
 >> "%SHORTCUT_PS1%" echo $lnk = $shell.CreateShortcut("$env:USERPROFILE\Desktop\SEZDocs.lnk")
->> "%SHORTCUT_PS1%" echo $lnk.TargetPath = "%APP_DIR%\venv\Scripts\python.exe"
+>> "%SHORTCUT_PS1%" echo $lnk.TargetPath = "%APP_DIR%\venv\Scripts\pythonw.exe"
 >> "%SHORTCUT_PS1%" echo $lnk.Arguments = '"%APP_DIR%\desktop_launcher.py"'
 >> "%SHORTCUT_PS1%" echo $lnk.WorkingDirectory = "%APP_DIR%"
 >> "%SHORTCUT_PS1%" echo $lnk.IconLocation = "%ICON_PATH%"
@@ -230,9 +250,8 @@ echo   Setup complete! Starting SEZDocs...
 echo   Next time, just open the SEZDocs icon on your desktop.
 echo ================================================================
 echo.
-"%APP_DIR%\venv\Scripts\python.exe" "%APP_DIR%\desktop_launcher.py"
-
-pause
+start "" "%APP_DIR%\venv\Scripts\pythonw.exe" "%APP_DIR%\desktop_launcher.py"
+timeout /t 4 >nul
 exit /b 0
 
 :: ------------------------------------------------------------
